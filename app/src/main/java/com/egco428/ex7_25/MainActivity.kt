@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.Toast
 import com.egco428.ex7_25.DataSource.CommentDataSource
 import com.egco428.ex7_25.Model.Comment
 
@@ -21,9 +23,24 @@ class MainActivity : ListActivity() {
         dataSource = CommentDataSource(this)
         dataSource!!.open()
         val values = dataSource!!.allComments
+
         val adapter = ArrayAdapter<Comment>(this,android.R.layout.simple_list_item_1,values)
         setListAdapter(adapter)
 
+        val listView = findViewById<ListView>(android.R.id.list)
+        listView.adapter = adapter
+        listView.setOnItemClickListener { adapterView, view, position, id ->
+            val item = adapterView.getItemAtPosition(position)
+            Toast.makeText(this, "delete ${item} at position $position", Toast.LENGTH_SHORT).show()
+
+            var comment : Comment? = null
+            if(getListAdapter().getCount() > 0){
+                comment = getListAdapter().getItem(position) as Comment
+                dataSource!!.deleteComment(comment!!)
+                adapter.remove(comment)
+            }
+            adapter.notifyDataSetChanged()
+        }
     }
     fun OnClick(view: View){
         val adapter = getListAdapter() as ArrayAdapter<Comment>
